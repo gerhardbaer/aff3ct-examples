@@ -5,7 +5,8 @@
 #include <string>
 #include <atomic>
 
-#include <aff3ct.hpp>
+#include <aff3ct-simd-all.hpp>
+#define aff3ct aff3ct_sse4
 using namespace aff3ct;
 
 //#define STEP_BY_STEP

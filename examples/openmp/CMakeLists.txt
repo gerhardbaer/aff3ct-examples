@@ -19,9 +19,12 @@ set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads REQUIRED)
 
 # Link with AFF3CT
-set (AFF3CT_DIR "${CMAKE_CURRENT_SOURCE_DIR}/cmake/Modules/")
-find_package(AFF3CT CONFIG 3.0.2 REQUIRED)
-target_link_libraries(my_project PRIVATE aff3ct::aff3ct-static-lib)
+find_package(aff3ct-sse4 3.0.2 CONFIG REQUIRED)
+target_link_libraries(my_project PRIVATE aff3ct-sse4::aff3ct-shared-lib)
+find_package(aff3ct-avx2 3.0.2 CONFIG REQUIRED)
+target_link_libraries(my_project PRIVATE aff3ct-avx2::aff3ct-shared-lib)
+find_package(aff3ct-avx512 3.0.2 CONFIG REQUIRED)
+target_link_libraries(my_project PRIVATE aff3ct-avx512::aff3ct-shared-lib)
 
 # Link with OpenMP
 find_package(OpenMP)
