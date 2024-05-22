@@ -47,7 +47,7 @@ struct utils
 	            std::unique_ptr<tools::Sigma<>  > noise;     // a sigma noise type
 	std::vector<std::unique_ptr<tools::Reporter>> reporters; // list of reporters displayed in the terminal
 	            std::unique_ptr<tools::Terminal > terminal;  // manage the output text in the terminal
-	            std::unique_ptr<tools::Pipeline>  pipeline;
+	            std::unique_ptr<runtime::Pipeline>  pipeline;
 };
 void init_utils(const params &p, const modules &m, utils &u);
 
@@ -69,15 +69,15 @@ int main(int argc, char** argv)
 
 	// sockets binding (connect the sockets of the tasks = fill the input sockets with the output sockets)
 	using namespace module;
-	(*m.encoder)[enc::sck::encode      ::U_K   ].bind((*m.source )[src::sck::generate   ::U_K   ]);
+	(*m.encoder)[enc::sck::encode      ::U_K   ].bind((*m.source )[src::sck::generate   ::out_data]);
 	(*m.modem  )[mdm::sck::modulate    ::X_N1  ].bind((*m.encoder)[enc::sck::encode     ::X_N   ]);
 	(*m.channel)[chn::sck::add_noise   ::X_N   ].bind((*m.modem  )[mdm::sck::modulate   ::X_N2  ]);
 	(*m.modem  )[mdm::sck::demodulate  ::Y_N1  ].bind((*m.channel)[chn::sck::add_noise  ::Y_N   ]);
 	(*m.decoder)[dec::sck::decode_siho ::Y_N   ].bind((*m.modem  )[mdm::sck::demodulate ::Y_N2  ]);
-	(*m.monitor)[mnt::sck::check_errors::U     ].bind((*m.source )[src::sck::generate   ::U_K   ]);
+	(*m.monitor)[mnt::sck::check_errors::U     ].bind((*m.source )[src::sck::generate   ::out_data]);
 	(*m.monitor)[mnt::sck::check_errors::V     ].bind((*m.decoder)[dec::sck::decode_siho::V_K   ]);
-	(*m.sink   )[snk::sck::send_k      ::real_K].bind((*m.source )[src::sck::generate   ::real_K]);
-	(*m.sink   )[snk::sck::send_k      ::V     ].bind((*m.decoder)[dec::sck::decode_siho::V_K   ]);
+	(*m.sink   )[snk::sck::send_count  ::in_count].bind((*m.source )[src::sck::generate   ::out_count]);
+	(*m.sink   )[snk::sck::send_count  ::in_data ].bind((*m.decoder)[dec::sck::decode_siho::V_K   ]);
 
 	std::vector<float> sigma(1);
 	(*m.channel)[chn::sck::add_noise ::CP].bind(sigma);
@@ -175,7 +175,7 @@ void init_modules(const params &p, modules &m)
 
 void init_utils(const params &p, const modules &m, utils &u)
 {
-	u.pipeline.reset(new tools::Pipeline((*m.source)[module::src::tsk::generate], // first task of the sequence
+	u.pipeline.reset(new runtime::Pipeline((*m.source)[module::src::tsk::generate], // first task of the sequence
 	                                     { // pipeline stage 0
 	                                       { { &(*m.source )[module::src::tsk::generate    ] },   // first tasks of stage 0
 	                                         { &(*m.source )[module::src::tsk::generate    ] } }, // last  tasks of stage 0
@@ -184,7 +184,7 @@ void init_utils(const params &p, const modules &m, utils &u)
 	                                         { &(*m.decoder)[module::dec::tsk::decode_siho ] } }, // last  tasks of stage 1
 	                                       // pipeline stage 2
 	                                       { { &(*m.monitor)[module::mnt::tsk::check_errors],     // first tasks of stage 2
-	                                           &(*m.sink   )[module::snk::tsk::send_k      ] },
+	                                           &(*m.sink   )[module::snk::tsk::send_count  ] },
 	                                         { /* empty vector of last tasks */              } }, // last  tasks of stage 2
 	                                     },
 	                                     {

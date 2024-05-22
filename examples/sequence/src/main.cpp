@@ -58,7 +58,7 @@ struct utils
 	std::vector<std::unique_ptr<tools::Reporter              >> reporters;   // list of reporters displayed in the terminal
 	            std::unique_ptr<tools::Terminal              >  terminal;    // manage the output text in the terminal
 	            std::unique_ptr<tools::Monitor_BFER_reduction>  monitor_red; // main monitor object that reduce all the thread monitors
-	            std::unique_ptr<tools::Sequence              >  sequence;
+	            std::unique_ptr<runtime::Sequence            >  sequence;
 };
 void init_utils(const params &p, const modules &m, utils &u);
 
@@ -80,12 +80,12 @@ int main(int argc, char** argv)
 
 	// sockets binding (connect the sockets of the tasks = fill the input sockets with the output sockets)
 	using namespace module;
-	(*m.encoder)[enc::sck::encode      ::U_K ] = (*m.source )[src::sck::generate   ::U_K ];
+	(*m.encoder)[enc::sck::encode      ::U_K ] = (*m.source )[src::sck::generate   ::out_data];
 	(*m.modem  )[mdm::sck::modulate    ::X_N1] = (*m.encoder)[enc::sck::encode     ::X_N ];
 	(*m.channel)[chn::sck::add_noise   ::X_N ] = (*m.modem  )[mdm::sck::modulate   ::X_N2];
 	(*m.modem  )[mdm::sck::demodulate  ::Y_N1] = (*m.channel)[chn::sck::add_noise  ::Y_N ];
 	(*m.decoder)[dec::sck::decode_siho ::Y_N ] = (*m.modem  )[mdm::sck::demodulate ::Y_N2];
-	(*m.monitor)[mnt::sck::check_errors::U   ] = (*m.source )[src::sck::generate   ::U_K ];
+	(*m.monitor)[mnt::sck::check_errors::U   ] = (*m.source )[src::sck::generate   ::out_data];
 	(*m.monitor)[mnt::sck::check_errors::V   ] = (*m.decoder)[dec::sck::decode_siho::V_K ];
 
 	std::vector<float> sigma(1);
@@ -202,7 +202,7 @@ void init_modules(const params &p, modules &m)
 
 void init_utils(const params &p, const modules &m, utils &u)
 {
-	u.sequence = std::unique_ptr<tools::Sequence>(new tools::Sequence((*m.source)[module::src::tsk::generate],
+	u.sequence = std::unique_ptr<runtime::Sequence>(new runtime::Sequence((*m.source)[module::src::tsk::generate],
 		p.n_threads ? p.n_threads : 1));
 	// allocate a common monitor module to reduce all the monitors
 	u.monitor_red = std::unique_ptr<tools::Monitor_BFER_reduction>(new tools::Monitor_BFER_reduction(

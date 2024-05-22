@@ -58,7 +58,7 @@ int main(int argc, char** argv)
 		(*incs[s+1])[module::inc::sck::increment::in] = (*incs[s])[module::inc::sck::increment::out];
 	finalizer[module::fin::sck::finalize::in] = (*incs[incs.size()-1])[module::inc::sck::increment::out];
 
-	tools::Sequence sequence_chain(initializer[module::ini::tsk::initialize], n_threads);
+	runtime::Sequence sequence_chain(initializer[module::ini::tsk::initialize], n_threads);
 	sequence_chain.set_n_frames(n_inter_frames);
 	sequence_chain.set_no_copy_mode(no_copy_mode);
 
@@ -165,7 +165,7 @@ int main(int argc, char** argv)
 	switcher  [module::swi::tsk::select][0]     = (*incs[incs.size()-1])[module::inc::sck::increment::out];
 	finalizer [module::fin::sck::finalize::in]  = switcher   [module::swi::tsk::commute][3];
 
-	tools::Sequence sequence_for_loop(initializer[module::ini::tsk::initialize], n_threads);
+	runtime::Sequence sequence_for_loop(initializer[module::ini::tsk::initialize], n_threads);
 	sequence_for_loop.set_n_frames(n_inter_frames);
 	sequence_for_loop.set_no_copy_mode(no_copy_mode);
 
@@ -272,7 +272,7 @@ int main(int argc, char** argv)
 	switcher  [module::swi::tsk::select ][0]    = switcher   [module::swi::tsk::commute][2];
 	finalizer [module::fin::sck::finalize::in]  = switcher   [module::swi::tsk::commute][3];
 
-	tools::Sequence sequence_do_while_loop(initializer[module::ini::tsk::initialize], n_threads);
+	runtime::Sequence sequence_do_while_loop(initializer[module::ini::tsk::initialize], n_threads);
 	sequence_do_while_loop.set_n_frames(n_inter_frames);
 	sequence_do_while_loop.set_no_copy_mode(no_copy_mode);
 
@@ -385,7 +385,7 @@ int main(int argc, char** argv)
 	// end
 	finalizer [module::fin::sck::finalize ::in] = switchex   [module::swi::tsk::select      ][3];
 
-	tools::Sequence sequence_exclusive_paths(initializer[module::ini::tsk::initialize], n_threads);
+	runtime::Sequence sequence_exclusive_paths(initializer[module::ini::tsk::initialize], n_threads);
 	sequence_exclusive_paths.set_n_frames(n_inter_frames);
 	sequence_exclusive_paths.set_no_copy_mode(no_copy_mode);
 
@@ -518,7 +518,7 @@ int main(int argc, char** argv)
 	switcher2 [module::swi::tsk::select][0]     = switcher   [module::swi::tsk::commute][3];
 	finalizer [module::fin::sck::finalize::in]  = switcher2  [module::swi::tsk::commute][3];
 
-	tools::Sequence sequence_nested_loops(initializer[module::ini::tsk::initialize], n_threads);
+	runtime::Sequence sequence_nested_loops(initializer[module::ini::tsk::initialize], n_threads);
 	sequence_nested_loops.set_n_frames(n_inter_frames);
 	sequence_nested_loops.set_no_copy_mode(no_copy_mode);
 

@@ -78,7 +78,7 @@ int main(int argc, char** argv)
 
 	std::vector<float> sigma(1);
 
-	enc_n  [enc::sck::encode             ::U_K  ] = src    [src::sck::generate           ::U_K   ];
+	enc_n  [enc::sck::encode             ::U_K  ] = src    [src::sck::generate           ::out_data   ];
 	itl_bit[itl::sck::interleave         ::nat  ] = enc_n  [enc::sck::encode             ::X_N   ];
 	enc_i  [enc::sck::encode             ::U_K  ] = itl_bit[itl::sck::interleave         ::itl   ];
 	mdm    [mdm::sck::modulate           ::X_N1 ] = enc_i  [enc::sck::encode             ::X_N   ];
@@ -97,13 +97,13 @@ int main(int argc, char** argv)
 	itl_llr[itl::sck::interleave         ::nat  ] = dec_n  [dec::sck::decode_siso        ::Y_N2  ];
 	swi    [swi::tsk::select             ][0    ] = itl_llr[itl::sck::interleave         ::itl   ];
 	dec_n  [dec::sck::decode_siho        ::Y_N  ] = swi    [swi::tsk::commute            ][3     ];
-	mnt    [mnt::sck::check_errors       ::U    ] = src    [src::sck::generate           ::U_K   ];
+	mnt    [mnt::sck::check_errors       ::U    ] = src    [src::sck::generate           ::out_data   ];
 	mnt    [mnt::sck::check_errors       ::V    ] = dec_n  [dec::sck::decode_siho        ::V_K   ];
 	cnt    [ite::tsk::iterate                   ] = ext    [ext::sck::add_sys_and_ext_llr::status];
 	chn    [chn::sck::add_noise          ::CP   ] = sigma;
 	mdm    [mdm::sck::demodulate         ::CP   ] = sigma;
 
-	tools::Sequence sequence(src[src::tsk::generate], nthreads);
+	runtime::Sequence sequence(src[src::tsk::generate], nthreads);
 
 	// std::ofstream sequence_dot("sequence.dot");
 	// sequence.export_dot(sequence_dot);
